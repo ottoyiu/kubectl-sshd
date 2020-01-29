@@ -4,11 +4,12 @@
 echo "This is just a script template, not the script (yet) - pass it to 'argbash' to fix this." >&2
 exit 11  #)Created by argbash-init v2.8.1
 # ARG_POSITIONAL_SINGLE([pod], [Pod name], )
-# ARG_OPTIONAL_SINGLE([local-dropbear-path], l, [Local Path to statically-built dropbear/SSH server binary], [static-dropbear])
+# ARG_OPTIONAL_SINGLE([local-dropbear-path], l, [Local Path to statically-built dropbear/SSH server binary (default: $SCRIPT_DIR/static-dropbear)], [])
 # ARG_OPTIONAL_SINGLE([remote-dropbear-dir], r, [Pod Path to upload dropbear/SSH server to], [/tmp])
+# ARG_OPTIONAL_SINGLE([remote-scp-path], R, [Pod Path for scp], [/bin/scp])
 # ARG_OPTIONAL_SINGLE([bind-port], b, [Pod Bind Port for dropbear/SSH server to], [22])
 # ARG_OPTIONAL_SINGLE([authorized-keys-path], k, [Public keys of those authorized to authenticate through SSH], [id_rsa.pub])
-# ARG_OPTIONAL_SINGLE([ssh-path], S, [SSH Path Location, specify if authenticate using non-root user], [/root/.ssh])
+# ARG_OPTIONAL_SINGLE([ssh-path], s, [SSH Path Location, specify if authenticate using non-root user], [/root/.ssh])
 # ARG_OPTIONAL_SINGLE([namespace], n, [Pod Namespace], [])
 # ARG_OPTIONAL_BOOLEAN([cleanup], c, [Cleanup all the files and dropbear binary before script exits])
 # ARG_OPTIONAL_BOOLEAN([verbose], V, [Increase verbosity of script])
@@ -20,10 +21,20 @@ exit 11  #)Created by argbash-init v2.8.1
 
 # [ <-- needed because of Argbash
 
+# resolve actual directory where script resides
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+
 POD_NAME=$_arg_pod
 SOURCE_PATH=$_arg_local_dropbear_path
 PAYLOAD_DIR=$_arg_remote_dropbear_dir
 PAYLOAD_PATH="${PAYLOAD_DIR}/dropbear"
+REMOTE_SCP_PATH=$_arg_remote_scp_path
 PORT=$_arg_bind_port
 AUTHORIZED_KEYS_PATH=$_arg_authorized_keys_path
 NAMESPACE=$_arg_namespace
@@ -32,6 +43,10 @@ SSH_PATH=$_arg_ssh_path
 KUBECTL_CMD="kubectl"
 AUTHORIZED_KEYS_DEST="${SSH_PATH}/authorized_keys"
 
+if [ -z "$SOURCE_PATH" ];
+then
+    SOURCE_PATH="${SCRIPT_DIR}/static-dropbear"
+fi
 
 if [ ! -z "$NAMESPACE" ];
 then
@@ -54,6 +69,15 @@ copy_binary() {
         if [ $? -eq 0 ]
         then
             echo "Payload uploaded to $PAYLOAD_PATH!"
+            if [ ! -z "${REMOTE_SCP_PATH}" ]
+            then
+                echo "Setting up scp symlink $REMOTE_SCP_PATH -> $PAYLOAD_PATH"
+                $KUBECTL_CMD exec $POD_NAME -- ln -s $PAYLOAD_PATH $REMOTE_SCP_PATH
+                if [ $? -ne 0 ]
+                then
+                    echo "Failed to symlink scp $REMOTE_SCP_PATH -> $PAYLOAD_PATH. Ignoring."
+                fi
+            fi
         else
             echo "Payload failed to upload. Aborting."
             cat << EOF
@@ -98,6 +122,7 @@ cleanup() {
     $KUBECTL_CMD exec $POD_NAME -- rm $AUTHORIZED_KEYS_DEST
     $KUBECTL_CMD exec $POD_NAME -- rm -rf /etc/dropbear
     $KUBECTL_CMD exec $POD_NAME -- rm $PAYLOAD_PATH
+    $KUBECTL_CMD exec $POD_NAME -- rm $REMOTE_SCP_PATH
     set +e
 }
 

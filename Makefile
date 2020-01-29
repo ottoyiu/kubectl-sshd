@@ -12,7 +12,7 @@ $(ARGBASH):
 	tar -C $(ARGBASH_HOME) -xvf $(ARGBASH_VERSION).tar.gz --strip 1
 	rm $(ARGBASH_VERSION).tar.gz
 
-render: bin/kubectl-sshd
+render: bin/kubectl-sshd bin/static-dropbear
 
 bin:
 	mkdir bin/
