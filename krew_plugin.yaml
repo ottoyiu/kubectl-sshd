@@ -21,6 +21,7 @@ spec:
   caveats: |
     This plugin needs the following programs:
     * dropbear (statically compiled)
+    This plugin requires that the 'tar', 'ls', 'ln' binaries are present in your container. Otherwise, this plugin will fail.
   description: |
     This plugin allows users to run a SSH server (Dropbear) in a running Pod.
   shortDescription: Run SSH server on a Pod
