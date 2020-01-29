@@ -1,0 +1,3 @@
+[submodule "docker-dropbear-static"]
+	path = docker-dropbear-static
+	url = https://github.com/danielkza/docker-dropbear-static
