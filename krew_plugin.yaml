@@ -3,10 +3,10 @@ kind: Plugin
 metadata:
   name: sshd
 spec:
-  version: "v0.0.1"
+  version: "v0.1.0"
   platforms:
-  - uri: https://github.com/ottoyiu/kubectl-sshd/archive/v0.0.1.tar.gz
-    sha256: 1919a25575c6722a0640fc16aa2808de1f99eea98882378689f1fb278d3bc840
+  - uri: https://github.com/ottoyiu/kubectl-sshd/archive/v0.1.0.tar.gz
+    sha256: 592dbf172f4bd35317b6632e120056c803e29c5713a28d876b69baf2f9955dba
     bin: kubectl-sshd
     files:
     - from: "./*/bin/static-dropbear"
@@ -19,8 +19,6 @@ spec:
       matchExpressions:
       - {key: os, operator: In, values: [darwin, linux]}
   caveats: |
-    This plugin needs the following programs:
-    * dropbear (statically compiled)
     This plugin requires that the 'tar', 'ls', 'ln' binaries are present in your container. Otherwise, this plugin will fail.
   description: |
     This plugin allows users to run a SSH server (Dropbear) in a running Pod.
