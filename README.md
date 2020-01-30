@@ -30,8 +30,9 @@ cd kubectl-sshd
 ```
 > kubectl sshd --help
 kssh - Start a SSH server in any Pod
-Usage: ./bin/kubectl-sshd [-l|--local-dropbear-path <arg>] [-r|--remote-dropbear-dir <arg>] [-R|--remote-scp-path <arg>] [-b|--bind-port <arg>] [-k|--authorized-keys-path <arg>] [-s|--ssh-path <arg>] [-n|--namespace <arg>] [-c|--(no-)cleanup] [-V|--(no-)verbose] [-h|--help] [-v|--version] <pod>
+Usage: kubectl sshd [-c|--container <arg>] [-l|--local-dropbear-path <arg>] [-r|--remote-dropbear-dir <arg>] [-R|--remote-scp-path <arg>] [-b|--bind-port <arg>] [-k|--authorized-keys-path <arg>] [-s|--ssh-path <arg>] [-n|--namespace <arg>] [-C|--(no-)cleanup] [-V|--(no-)verbose] [-h|--help] [-v|--version] <pod>
         <pod>: Pod name
+        -c, --container: Container name (if more than one container in Pod) (no default)
         -l, --local-dropbear-path: Local Path to statically-built dropbear/SSH server binary (default: /static-dropbear) (no default)
         -r, --remote-dropbear-dir: Pod Path to upload dropbear/SSH server to (default: '/tmp')
         -R, --remote-scp-path: Pod Path for scp (default: '/bin/scp')
@@ -39,7 +40,7 @@ Usage: ./bin/kubectl-sshd [-l|--local-dropbear-path <arg>] [-r|--remote-dropbear
         -k, --authorized-keys-path: Public keys of those authorized to authenticate through SSH (default: 'id_rsa.pub')
         -s, --ssh-path: SSH Path Location, specify if authenticate using non-root user (default: '/root/.ssh')
         -n, --namespace: Pod Namespace (no default)
-        -c, --cleanup, --no-cleanup: Cleanup all the files and dropbear binary before script exits (off by default)
+        -C, --cleanup, --no-cleanup: Cleanup all the files and dropbear binary before script exits (off by default)
         -V, --verbose, --no-verbose: Increase verbosity of script (off by default)
         -h, --help: Prints help
         -v, --version: Prints version
