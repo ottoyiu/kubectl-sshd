@@ -110,8 +110,7 @@ copy_keys() {
     fi
     $KUBECTL_CMD_CONT exec $POD_NAME -- mkdir -p $SSH_PATH
     $KUBECTL_CMD_CONT cp $AUTHORIZED_KEYS_PATH $POD_NAME:$AUTHORIZED_KEYS_DEST
-    $KUBECTL_CMD_CONT exec $POD_NAME -- chmod 0600 -R $SSH_PATH
-    $KUBECTL_CMD_CONT exec $POD_NAME -- chown root:root -R $SSH_PATH
+    $KUBECTL_CMD_CONT exec $POD_NAME -- chmod 0700 -R $SSH_PATH
     set +e
 }
 start_ssh_server() {
